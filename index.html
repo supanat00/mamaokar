@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>MAMAOK</title>
+
+   <!-- 🔽 ใส่ gtag ตรงนี้ 🔽 -->
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LZQ54E0DXM"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LZQ54E0DXM');
+  </script>
+  <!-- 🔼 จบ gtag 🔼 -->
+
+
+  <style>
+    body {
+      text-align: center;
+      padding: 0;
+      border: 0;
+      margin: 0;
+      overflow: hidden;
+    }
+
+  
+    #loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("bg3.webp") center center / cover no-repeat;
+  display: flex;
+  align-items: center; /* เปลี่ยนจาก flex-end เป็น center */
+  justify-content: center;
+  font-family: sans-serif;
+  font-size: 48px;
+  color: white;
+  z-index: 9999;
+  /* text-shadow: 0 0 5px #000; */
+}
+ #loading-dots::after {
+      content: "";
+      animation: dots 1.5s steps(4, end) infinite;
+     
+    }
+    
+  #loading-dots {
+  	   font-size: 48px; /* 🔼 เพิ่มขนาดตัวอักษรให้ใหญ่ขึ้น*/
+  margin-top: 450px; /* ขยับขึ้นจากขอบล่าง */
+}
+
+    @keyframes dots {
+      0%   { content: "."; }
+      25%  { content: ".."; }
+      50%  { content: "..."; }
+      75%  { content: "...."; }
+      100% { content: ""; }
+    }
+
+    /* Recorder Button Style */
+   /* Recorder Button Style */
+    #recorder-button {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10000;
+      cursor: pointer;
+      display: none;
+      width: 100px;
+      height: 100px;
+    }
+
+    .outer-ring {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      transform: rotate(-90deg);
+    }
+
+    .ring-bg {
+      fill: none;
+      stroke: white;
+      stroke-width: 5;
+      opacity: 1;
+    }
+
+    .ring-progress {
+      fill: none;
+      stroke: red;
+      stroke-width: 10;
+      stroke-dasharray: 283;
+      stroke-dashoffset: 283;
+      transition: stroke-dashoffset 0.1s linear;
+    }
+
+    .inner-circle {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background-color: red;
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <!-- LOADING -->
+  <div id="loading-overlay">
+    <div id="loading-dots"></div>
+  </div>
+
+  <!-- UNITY CANVAS -->
+  <canvas id="unity-canvas" style="width: 100%; height: 100%;"></canvas>
+
+  <!-- RECORD BUTTON -->
+  <div id="recorder-button" onclick="recorder()">
+    <svg viewBox="0 0 100 100" class="outer-ring">
+      <circle class="ring-bg" cx="50" cy="50" r="45"></circle>
+      <circle class="ring-progress" cx="50" cy="50" r="45"></circle>
+    </svg>
+    <div id="recorder-inner" class="inner-circle"></div>
+  </div>
+
+  <!-- UNITY LOADER -->
+  <script src="Build/9599809e144f73a7d60f667f2f8e8bdb.loader.js"></script>
+  <script>
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      var meta = document.createElement('meta');
+      meta.name = 'viewport';
+      meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+      document.getElementsByTagName('head')[0].appendChild(meta);
+
+      var canvas = document.querySelector("#unity-canvas");
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+      canvas.style.position = "fixed";
+
+      document.body.style.textAlign = "left";
+    }
+
+    function onResize() {
+      const canvas = document.querySelector("#unity-canvas");
+      canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+    }
+
+    window.addEventListener("resize", onResize);
+    onResize();
+
+    let unityInstance = null;
+
+    createUnityInstance(document.querySelector("#unity-canvas"), {
+      dataUrl: "Build/c2dee00fef386c060753e4e8b472b849.data",
+      frameworkUrl: "Build/27f554540f6c95b9114e9835c2aca197.framework.js",
+      codeUrl: "Build/7068f0f89a83485ec4d270f141fc7110.wasm",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "DefaultCompany",
+      productName: "TryOn",
+      productVersion: "0.1",
+    }).then((instance) => {
+      unityInstance = instance;
+      const overlay = document.getElementById("loading-overlay");
+      if (overlay) overlay.style.display = "none";
+
+        chooseSceneByDevice();
+
+    });
+
+     // ✅ ส่งคำสั่งกลับ Unity
+    function sendToUnity(method, value) {
+      if (unityInstance) {
+        unityInstance.SendMessage("GameManager", method, value);
+      } else {
+        console.warn("Unity not ready");
+      }
+    }
+
+    // ✅ ตรวจสอบว่าเป็น Samsung S24 series ไหม
+    function isSamsungS24Series() {
+      const ua = navigator.userAgent.toLowerCase();
+      return ua.includes("samsung") && (
+        ua.includes("sm-s921") ||  // S24
+        ua.includes("sm-s926") ||  // S24+
+        ua.includes("sm-s928")     // S24 Ultra
+      );
+    }
+
+    // ✅ เลือก Scene แล้วส่งไป Unity
+    function chooseSceneByDevice() {
+      const scene = isSamsungS24Series() ? "sumsung" : "main";
+      sendToUnityDevice("SetSceneTarget", scene);
+    }
+
+  function sendToUnityDevice(method, value) {
+      if (unityInstance) {
+        unityInstance.SendMessage("LoadContent", method, value);
+      } else {
+        console.warn("Unity not ready");
+      }
+    }
+
+
+    // Helper to call Unity
+    function sendToUnity(method, value) {
+      if (unityInstance) {
+        unityInstance.SendMessage("GameManager", method, value);
+      } else {
+        console.warn("Unity not ready");
+      }
+    }
+
+    // Show/Hide button
+    function showRecorderButton(show) {
+      const btn = document.getElementById("recorder-button");
+      if (btn) btn.style.display = show ? "block" : "none";
+    }
+
+    // Recorder Logic
+    let isRecording = false;
+    let progress = 0;
+    const maxProgress = 10000;
+    let interval;
+
+    function recorder() {
+      if (!isRecording) {
+        startRecording();
+      } else {
+        stopRecording("stop");
+      }
+    }
+
+    function startRecording() {
+      isRecording = true;
+      progress = 0;
+      updateProgress(0);
+
+      const inner = document.getElementById("recorder-inner");
+      inner.style.borderRadius = "8px";
+      inner.style.width = "40px";
+      inner.style.height = "40px";
+      inner.style.top = "30px";
+      inner.style.left = "30px";
+
+      sendToUnity("OnRecorderToggled", "start");
+
+      interval = setInterval(() => {
+        progress += 100;
+        updateProgress(progress / maxProgress);
+        if (progress >= maxProgress) {
+          stopRecording("auto-stop");
+        }
+      }, 100);
+    }
+
+   function stopRecording(reason) {
+  isRecording = false;
+  clearInterval(interval);
+  updateProgress(0); // รีเซตวงขอบ
+
+  // กลับรูปร่างเป็นปุ่มเริ่มต้น
+  const inner = document.getElementById("recorder-inner");
+  inner.style.borderRadius = "50%";
+  inner.style.width = "50px";
+  inner.style.height = "50px";
+  inner.style.top = "25px";
+  inner.style.left = "25px";
+  inner.style.backgroundColor = "red";
+
+  const ring = document.querySelector(".ring-progress");
+  ring.style.strokeDashoffset = 283; // เต็มวงอีกครั้ง
+
+  // ส่งสถานะกลับ Unity
+  if (reason === "auto-stop") {
+    sendToUnity("OnRecorderToggled", "auto-stop");
+  } else {
+    sendToUnity("OnRecorderToggled", "stop");
+  }
+}
+
+
+    function updateProgress(percent) {
+      const circle = document.querySelector(".ring-progress");
+      const circumference = 2 * Math.PI * 45;
+      const offset = circumference - percent * circumference;
+      circle.style.strokeDashoffset = offset;
+    }
+  </script>
+</body>
+</html>
