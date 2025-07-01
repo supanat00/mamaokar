@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
   <title>MAMAOK</title>
 
    <!-- 🔽 ใส่ gtag ตรงนี้ 🔽 -->
@@ -131,12 +132,14 @@
   </div>
 
   <!-- UNITY LOADER -->
-  <script src="Build/9599809e144f73a7d60f667f2f8e8bdb.loader.js"></script>
+  <script src="Build/441336bf97efb3e023e51a3d75ee09f2.loader.js"></script>
   <script>
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
       var meta = document.createElement('meta');
       meta.name = 'viewport';
-      meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+     // meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+      meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+
       document.getElementsByTagName('head')[0].appendChild(meta);
 
       var canvas = document.querySelector("#unity-canvas");
@@ -159,12 +162,12 @@
     let unityInstance = null;
 
     createUnityInstance(document.querySelector("#unity-canvas"), {
-      dataUrl: "Build/c2dee00fef386c060753e4e8b472b849.data",
-      frameworkUrl: "Build/27f554540f6c95b9114e9835c2aca197.framework.js",
-      codeUrl: "Build/7068f0f89a83485ec4d270f141fc7110.wasm",
+      dataUrl: "Build/1c8d3b36a0751cc6cc318e3a4e95cf39.data",
+      frameworkUrl: "Build/5de3468bafd7143713e8f3ef4d57d872.framework.js",
+      codeUrl: "Build/92da41510d721e5ce7ae34bb9a5093b2.wasm",
       streamingAssetsUrl: "StreamingAssets",
       companyName: "DefaultCompany",
-      productName: "TryOn",
+      productName: "MAMAOK",
       productVersion: "0.1",
     }).then((instance) => {
       unityInstance = instance;
